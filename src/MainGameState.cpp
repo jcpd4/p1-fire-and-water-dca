@@ -1,5 +1,8 @@
 #include <MainGameState.hpp>
 #include <iostream>
+#include <GameOverState.hpp> // Incluye la nueva clase
+#include <StateMachine.hpp> // Asegúrate de incluirla
+
 
 extern "C" {
     #include <raylib.h>
@@ -14,13 +17,17 @@ void MainGameState::init()
     // Inicialización del personaje de Fuego
     fire_player.position = { 100.0f, 300.0f };
     fire_player.velocity = { 0.0f, 0.0f };
-    fire_player.bounds = { fire_player.position.x, fire_player.position.y, 30.0f, 30.0f };
+    fire_player.width = 30.0f;
+    fire_player.height = 30.0f;
+    fire_player.bounds = { fire_player.position.x, fire_player.position.y, fire_player.width, fire_player.height };
     fire_player.type = FIRE;
 
     // Inicialización del personaje de Agua
     water_player.position = { 150.0f, 300.0f };
     water_player.velocity = { 0.0f, 0.0f };
-    water_player.bounds = { water_player.position.x, water_player.position.y, 30.0f, 30.0f };
+    water_player.width = 30.0f;
+    water_player.height = 30.0f;
+    water_player.bounds = { water_player.position.x, water_player.position.y, water_player.width, water_player.height };
     water_player.type = WATER;
 
     // Creación de plataformas para el nivel de prueba
@@ -29,6 +36,13 @@ void MainGameState::init()
     
     Platform p1 = { { 300, 300, 200, 20 } };
     level_platforms.push_back(p1);
+
+    // Creación de peligros para el nivel de prueba
+    Hazard lava = { { 200, 350, 100, 50 }, FIRE };
+    level_hazards.push_back(lava);
+
+    Hazard water = { { 550, 350, 100, 50 }, WATER };
+    level_hazards.push_back(water);
 }
 
 void MainGameState::handleInput()
@@ -97,12 +111,27 @@ void MainGameState::update(float deltaTime)
         }
     }
 
-    // Lógica de Salto (movida aquí)
+    // Lógica de Salto
     if (IsKeyPressed(KEY_W) && fire_on_ground) {
         fire_player.velocity.y = -400.0f; // Impulso de salto
     }
     if (IsKeyPressed(KEY_UP) && water_on_ground) {
         water_player.velocity.y = -400.0f; // Impulso de salto
+    }
+
+    // Lógica de colisión con peligros
+    for (const auto& hazard : level_hazards) {
+        if (CheckCollisionRecs(fire_player.bounds, hazard.bounds)) {
+            if (hazard.type == WATER) {
+                this->state_machine->add_state(std::make_unique<GameOverState>(), true);
+            }
+        }
+        
+        if (CheckCollisionRecs(water_player.bounds, hazard.bounds)) {
+            if (hazard.type == FIRE) {
+                this->state_machine->add_state(std::make_unique<GameOverState>(), true);
+            }
+        }
     }
 }
 
@@ -120,6 +149,15 @@ void MainGameState::render()
     // Dibujar las plataformas del nivel
     for (const auto& platform : level_platforms) {
         DrawRectangleRec(platform.bounds, GRAY);
+    }
+
+    // Dibuja los peligros
+    for (const auto& hazard : level_hazards) {
+        if (hazard.type == FIRE) {
+            DrawRectangleRec(hazard.bounds, MAROON);
+        } else if (hazard.type == WATER) {
+            DrawRectangleRec(hazard.bounds, DARKBLUE);
+        }
     }
     
     EndDrawing();
