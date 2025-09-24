@@ -19,6 +19,11 @@ Hemos completado la configuración inicial de la versión "alpha" del juego. Los
   - La **gravedad y la física de colisiones** con las plataformas estáticas se han añadido correctamente.
   - Se ha implementado la lógica de **salto** que solo permite saltar si el personaje está tocando una plataforma.
 
+- **Ejercicio 2: Colisiones Elementales y Transición a Game Over**
+  - Se han añadido al nivel **peligros de lava y agua** como obstáculos.
+  - Se ha implementado la **lógica de colisiones elementales** que hace que cada personaje muera al tocar el elemento opuesto.
+  - Se ha implementado una **pantalla de Game Over** que se activa al morir un personaje y permite reiniciar el juego.
+
 
 ### **Cómo Ejecutar el Proyecto**
 
