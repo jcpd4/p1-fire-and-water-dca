@@ -43,4 +43,6 @@ class MainGameState : public GameState
         Player fire_player;
         Player water_player;
         std::vector<Platform> level_platforms;
+        bool fire_on_ground = false;
+        bool water_on_ground = false; 
 };
